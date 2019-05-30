@@ -12,10 +12,10 @@ To install the  application, do the following:
 1) Download the source using git clone command
 
 ```bash
-git clone https://github.com/alancruzburbano/contact-list-project-server.git
-cd contact-list-project-server
+git clone https://github.com/alancruzburbano/find-celebrity-project.git
+cd find-celebrity-project
 ```
-In application.properties file you can find some important configurations over the CSV file path to read, also there you can set the number of persons (n) in the group. Take in mind that the number in the property must be the same  number of rows and columns in the matrix-data.csv and lines in people-name.csv files. Otherwise the algorithm will fail.
+In application.properties file you can find some important configurations over the CSV file path to read, also there you can set the number of persons (n) in the group. Take in mind that the number in the property must be the same  number of rows and columns in the matrix-data.csv and lines in people-name.csv files.
 
 To run the server application, just execute the following command:
  
