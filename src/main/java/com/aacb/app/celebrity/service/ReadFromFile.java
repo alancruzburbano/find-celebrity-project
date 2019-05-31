@@ -3,10 +3,12 @@ package com.aacb.app.celebrity.service;
 import com.aacb.app.celebrity.model.MatrixProcessor;
 import com.aacb.app.celebrity.utils.Constants;
 import com.aacb.app.celebrity.utils.TextVerifiable;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,7 +26,8 @@ import java.util.StringTokenizer;
  * @author Alvaro Andres Cruz Burbano
  */
 @Slf4j
-@Service
+@Component
+@Setter
 public class ReadFromFile implements SourceReadable {
 
     @Autowired
@@ -49,15 +52,29 @@ public class ReadFromFile implements SourceReadable {
     public void readItems() {
         try {
             List<String> linesFromFile = Files.readAllLines(Paths.get(readPath(Constants.DEFAULT_MATRIX_FILE_PATH)));
-            List<int[]> rowList = new ArrayList<>();
-            for (int i = 0; i < linesFromFile.size(); i++) {
-                rowList.add(buildArrayFromTokens(linesFromFile.get(i), i));
+            if (linesFromFile.size() == peopleAmount) {
+                createBinaryMatrix(linesFromFile);
+            } else {
+                log.error("The amount of people in property app.celebrity.list.file.people.amount" +
+                        " {} does not match with rows found in file: {}", peopleAmount, (linesFromFile.size()));
             }
-            matrixProcessor.setRowList(rowList);
-            log.info("\n"+ createMessageForResult(matrixProcessor.findCelebrity()));
         } catch (IOException e) {
             log.error("The system cannot read the file message: {}", e.getLocalizedMessage());
         }
+    }
+
+    private List<int[]> createBinaryMatrix(List<String> linesFromFile){
+        List<int[]> rowList = new ArrayList<>();
+        int[] lineConvertedToBinaryArray;
+        for (int i = 0; i < linesFromFile.size(); i++) {
+            lineConvertedToBinaryArray = buildArrayFromTokens(linesFromFile.get(i), i);
+            if(lineConvertedToBinaryArray!=null){
+                rowList.add(lineConvertedToBinaryArray);
+            }
+        }
+        matrixProcessor.setRowList(rowList);
+        log.info("\n" + createMessageForResult(matrixProcessor.findCelebrity()));
+        return rowList;
     }
 
     private String createMessageForResult(int result) {
@@ -86,9 +103,11 @@ public class ReadFromFile implements SourceReadable {
      */
     private int[] buildArrayFromTokens(String line, int lineNumber) {
         StringTokenizer st = new StringTokenizer(line, tokenSeparator);
-        String binaryToken;
-        int index = 0;
-            int[] rowValues = new int[peopleAmount];
+        int[] rowValues;
+        if (st.countTokens() == peopleAmount) {
+            rowValues = new int[peopleAmount];
+            String binaryToken;
+            int index = 0;
             while (st.hasMoreTokens()) {
                 binaryToken = st.nextToken().trim();
                 if (verifyBinary.verify(binaryToken)) {
@@ -98,7 +117,11 @@ public class ReadFromFile implements SourceReadable {
                 }
                 index++;
             }
-            return rowValues;
+        } else {
+            rowValues = null;
+            log.error("The number of tokens found in line {}, does not match with value configured in app.celebrity.list.file.people.amount {}", lineNumber, peopleAmount);
+        }
+        return rowValues;
     }
 
     /**
