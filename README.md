@@ -15,6 +15,7 @@ To install the  application, do the following:
 git clone https://github.com/alancruzburbano/find-celebrity-project.git
 cd find-celebrity-project
 ```
+In the source folder project you will find 2 CSV files, one for the distribution matrix and the second with the names of people.
 In application.properties file you can find some important configurations over the CSV file path to read, also there you can set the number of persons (n) in the group. Take in mind that the number in the property must be the same  number of rows and columns in the matrix-data.csv and lines in people-name.csv files.
 
 To run the server application, just execute the following command:
